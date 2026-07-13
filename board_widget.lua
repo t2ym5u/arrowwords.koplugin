@@ -90,7 +90,7 @@ function ArrowwordsBoardWidget:init()
     }
 end
 
-function ArrowwordsBoardWidget:onCellTap(ges)
+function ArrowwordsBoardWidget:onCellTap(_, ges)
     if not self.paint_rect then return true end
     local rect = self.paint_rect
     local lx   = ges.pos.x - rect.x
