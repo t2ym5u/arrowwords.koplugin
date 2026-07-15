@@ -82,8 +82,15 @@ function ArrowwordsScreen:buildLayout()
         and math.max(math.floor(sw * 0.38), 120)
         or  math.floor(sw * 0.9)
 
-    -- Top bar: prev / puzzle label / next / clear / close
-    local top_buttons = ButtonTable:new{
+    -- Title bar with Options menu
+    local title_bar = self:buildTitleBar(_("Mots fléchés"), function()
+        return {
+            self:makeRulesButtonConfig(GAME_RULES_EN, GAME_RULES_FR),
+        }
+    end)
+
+    -- Puzzle navigation row (kept in the footer)
+    local nav_buttons = ButtonTable:new{
         shrink_unneeded_width = true,
         width   = btn_width,
         buttons = {{
@@ -92,11 +99,9 @@ function ArrowwordsScreen:buildLayout()
               callback = function() end },
             { text = "\xe2\x96\xb6", callback = function() self:onNextPuzzle() end },
             { text = _("Clear"), callback = function() self:onClear() end },
-            self:makeRulesButtonConfig(GAME_RULES_EN, GAME_RULES_FR),
-            self:makeCloseButtonConfig(),
         }},
     }
-    self.puzzle_lbl_btn = top_buttons:getButtonById("puzzle_lbl")
+    self.puzzle_lbl_btn = nav_buttons:getButtonById("puzzle_lbl")
 
     -- Board widget
     local board_max
@@ -153,7 +158,7 @@ function ArrowwordsScreen:buildLayout()
     if is_landscape then
         local right = VerticalGroup:new{
             align = "center",
-            top_buttons,
+            nav_buttons,
             VerticalSpan:new{ width = Size.span.vertical_large },
             self.keyboard_widget,
             VerticalSpan:new{ width = Size.span.vertical_large },
@@ -161,30 +166,31 @@ function ArrowwordsScreen:buildLayout()
             VerticalSpan:new{ width = Size.span.vertical_large },
             self.status_text,
         }
-        self.layout = HorizontalGroup:new{
+        local content = HorizontalGroup:new{
             align  = "center",
             board_frame,
             HorizontalSpan:new{ width = Size.span.horizontal_default },
             right,
         }
+        self:buildLandscapeLayout(title_bar, content)
     else
-        self.layout = VerticalGroup:new{
+        local content = VerticalGroup:new{
             align = "center",
-            VerticalSpan:new{ width = Size.span.vertical_large },
-            top_buttons,
-            VerticalSpan:new{ width = Size.span.vertical_large },
             board_frame,
+        }
+        local footer = VerticalGroup:new{
+            align = "center",
+            nav_buttons,
             VerticalSpan:new{ width = Size.span.vertical_large },
             self.keyboard_widget,
             VerticalSpan:new{ width = Size.span.vertical_large },
             action_buttons,
             VerticalSpan:new{ width = Size.span.vertical_large },
             self.status_text,
-            VerticalSpan:new{ width = Size.span.vertical_large },
         }
+        self:buildPortraitLayout(title_bar, content, footer)
     end
 
-    self[1] = self.layout
     self:updateStatus()
 end
 
