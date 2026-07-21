@@ -12,11 +12,12 @@ Fill the grid with words. Clues appear directly inside the grid cells with an ar
 
 ## Features
 
-- **Bundled puzzles** — several ready-to-play arrowwords grids
+- **Bundled puzzles** — six ready-to-play arrowwords grids, from a quick 7×7 warm-up to denser 9×9 grids with genuine crossings between across and down answers
 - **Cell selection** — tap any answer cell to see its clue and direction
-- **Keyboard input** — type letters directly
-- **Erase** — clear individual cells
-- **Check** — highlights incorrect letters
+- **Keyboard input** — type letters directly, selection advances automatically
+- **Erase** — backspace clears the current cell, or steps back into the previous one
+- **Check** — highlights incorrect letters without revealing the answer
+- **Reveal** — fills in the full solution
 - **Auto-save** — progress saved and restored on next launch
 
 ## Installation
@@ -32,10 +33,12 @@ Fill the grid with words. Clues appear directly inside the grid cells with an ar
 |--------|-----|
 | Select a cell | Tap it |
 | Enter a letter | Tap the keyboard |
-| Erase a letter | Tap **Erase** |
+| Erase a letter | Tap **⌫** |
 | Check progress | Tap **Check** |
-| New puzzle | Tap **New** |
-| Show rules | Tap **Rules** |
+| Clear the grid | Tap **Clear** |
+| Reveal the solution | Tap **Reveal** |
+| Switch puzzle | Tap **◀** / **▶** |
+| Show rules | Options menu (top bar) → **Rules** |
 
 ## License
 
