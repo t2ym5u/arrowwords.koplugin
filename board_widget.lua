@@ -11,6 +11,7 @@ local C_BG       = Blitbuffer.COLOR_WHITE
 local C_FG       = Blitbuffer.COLOR_BLACK
 local C_CLUE_BG  = Blitbuffer.COLOR_GRAY_4    -- dark background for clue cells
 local C_SEL_BG   = Blitbuffer.COLOR_GRAY_D    -- highlight for selected cell
+local C_WRONG_BG = Blitbuffer.COLOR_GRAY_4    -- highlight for incorrect letters
 local C_GRID     = Blitbuffer.COLOR_GRAY_9    -- grid lines
 local C_CLUE_FG  = Blitbuffer.COLOR_WHITE     -- clue text color
 
@@ -26,15 +27,16 @@ local function drawArrowRight(bb, cx, cy, cw, ch)
     -- Small right-pointing triangle at the right side of the cell
     local aw = math.max(3, math.floor(cw * 0.18))   -- arrow width (depth)
     local ah = math.max(3, math.floor(ch * 0.28))   -- arrow height
-    local tip_x = cx + cw - 1                         -- rightmost x
+    local tip_x = cx + cw - 1                         -- rightmost x (the point)
+    local base_x = tip_x - aw                         -- leftmost x (the base)
     local mid_y = cy + math.floor(ch / 2)             -- vertical center
     -- Draw filled triangle: base on the left, tip on the right
     for i = 0, aw do
-        local half = math.floor(ah * i / aw / 2)
+        local half = math.floor(ah * (aw - i) / aw / 2)
         local ystart = mid_y - half
         local yend   = mid_y + half
         if yend >= ystart then
-            bb:paintRect(tip_x - aw + i, ystart, 1, yend - ystart + 1, C_FG)
+            bb:paintRect(base_x + i, ystart, 1, yend - ystart + 1, C_FG)
         end
     end
 end
@@ -43,14 +45,15 @@ local function drawArrowDown(bb, cx, cy, cw, ch)
     -- Small down-pointing triangle at the bottom of the cell
     local ah = math.max(3, math.floor(ch * 0.18))   -- arrow height (depth)
     local aw = math.max(3, math.floor(cw * 0.28))   -- arrow width
-    local tip_y = cy + ch - 1                         -- bottom y
+    local tip_y = cy + ch - 1                         -- bottom y (the point)
+    local base_y = tip_y - ah                         -- top of arrow region (the base)
     local mid_x = cx + math.floor(cw / 2)             -- horizontal center
     for i = 0, ah do
-        local half = math.floor(aw * i / ah / 2)
+        local half = math.floor(aw * (ah - i) / ah / 2)
         local xstart = mid_x - half
         local xend   = mid_x + half
         if xend >= xstart then
-            bb:paintRect(xstart, tip_y - ah + i, xend - xstart + 1, 1, C_FG)
+            bb:paintRect(xstart, base_y + i, xend - xstart + 1, 1, C_FG)
         end
     end
 end
@@ -64,6 +67,7 @@ local ArrowwordsBoardWidget = InputContainer:extend{
     max_width       = 200,
     max_height      = 200,
     cellTapHandler  = nil,
+    wrong_cells     = nil,   -- optional: {r}{c} = bool
 }
 
 function ArrowwordsBoardWidget:init()
@@ -186,7 +190,8 @@ function ArrowwordsBoardWidget:paintTo(bb, x, y)
                 end
             else
                 -- Letter cell
-                local bg = is_sel and C_SEL_BG or C_BG
+                local is_wrong = self.wrong_cells and self.wrong_cells[r] and self.wrong_cells[r][c]
+                local bg = is_sel and C_SEL_BG or is_wrong and C_WRONG_BG or C_BG
                 bb:paintRect(cx, cy, cell, cell, bg)
 
                 -- Draw user letter if any
