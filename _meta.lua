@@ -3,5 +3,5 @@ return {
     name        = "arrowwords",
     fullname    = _("Mots fléchés"),
     description = _("Arrow crossword puzzle"),
-    version     = "1.2.2",
+    version     = "1.2.3",
 }
