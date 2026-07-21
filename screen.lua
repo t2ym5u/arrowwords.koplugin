@@ -66,6 +66,7 @@ function ArrowwordsScreen:init()
     if not self.board:load(state) then
         -- fresh puzzle
     end
+    self.wrong_cells = nil
     ScreenBase.init(self)
 end
 
@@ -118,6 +119,7 @@ function ArrowwordsScreen:buildLayout()
         max_width  = board_max,
         max_height = board_max,
         cellTapHandler = function(r, c) self:onCellTap(r, c) end,
+        wrong_cells = self.wrong_cells,
     }
 
     local board_frame = FrameContainer:new{
@@ -146,11 +148,12 @@ function ArrowwordsScreen:buildLayout()
         buttons = key_rows_cfg,
     }
 
-    -- Action buttons: Reveal / (future: check)
+    -- Action buttons
     local action_buttons = ButtonTable:new{
         shrink_unneeded_width = true,
         width   = btn_width,
         buttons = {{
+            { text = _("Check"),  callback = function() self:onCheck() end },
             { text = _("Reveal"), callback = function() self:onReveal() end },
         }},
     }
@@ -212,7 +215,9 @@ function ArrowwordsScreen:onKeyPress(key)
     else
         self.board:typeLetter(key)
     end
+    self.wrong_cells = nil
     if self.board_widget then
+        self.board_widget.wrong_cells = nil
         self.board_widget:refresh()
     end
     self:updateStatus()
@@ -222,6 +227,7 @@ end
 function ArrowwordsScreen:onNextPuzzle()
     local next_idx = (self.board.puzzle_index % ArrowwordsBoard.NUM_PUZZLES) + 1
     self.board = ArrowwordsBoard:new{ puzzle_index = next_idx }
+    self.wrong_cells = nil
     self.plugin:saveSetting("puzzle_index", next_idx)
     self.plugin:saveState(self.board:serialize())
     self:buildLayout()
@@ -232,6 +238,7 @@ function ArrowwordsScreen:onPrevPuzzle()
     local prev_idx = self.board.puzzle_index - 1
     if prev_idx < 1 then prev_idx = ArrowwordsBoard.NUM_PUZZLES end
     self.board = ArrowwordsBoard:new{ puzzle_index = prev_idx }
+    self.wrong_cells = nil
     self.plugin:saveSetting("puzzle_index", prev_idx)
     self.plugin:saveState(self.board:serialize())
     self:buildLayout()
@@ -240,16 +247,41 @@ end
 
 function ArrowwordsScreen:onClear()
     self.board:clearAll()
+    self.wrong_cells = nil
     if self.board_widget then
+        self.board_widget.wrong_cells = nil
         self.board_widget:refresh()
     end
     self:updateStatus()
     self.plugin:saveState(self.board:serialize())
 end
 
+function ArrowwordsScreen:onCheck()
+    self.wrong_cells = self.board:checkLetters()
+    if self.board_widget then
+        self.board_widget.wrong_cells = self.wrong_cells
+        self.board_widget:refresh()
+    end
+    local wrong_cnt = 0
+    for r = 1, self.board.n do
+        for c = 1, self.board.n do
+            if self.wrong_cells[r] and self.wrong_cells[r][c] then
+                wrong_cnt = wrong_cnt + 1
+            end
+        end
+    end
+    if wrong_cnt == 0 then
+        self:updateStatus(_("No errors found!"))
+    else
+        self:updateStatus(T(_("Errors: %1"), wrong_cnt))
+    end
+end
+
 function ArrowwordsScreen:onReveal()
     self.board:reveal()
+    self.wrong_cells = nil
     if self.board_widget then
+        self.board_widget.wrong_cells = nil
         self.board_widget:refresh()
     end
     self:updateStatus(_("Solution revealed."))
