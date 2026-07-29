@@ -22,20 +22,11 @@ local _               = require("i18n")
 local T               = require("ffi/util").template
 
 local ScreenBase             = require("screen_base")
+local KeyboardWidget         = lrequire("common/keyboard_widget")
 local ArrowwordsBoard        = lrequire("board")
 local ArrowwordsBoardWidget  = lrequire("board_widget")
 
 local DeviceScreen = Device.screen
-
--- ---------------------------------------------------------------------------
--- Keyboard layout (AZERTY — standard French layout)
--- ---------------------------------------------------------------------------
-
-local KEY_ROWS = {
-    { "A", "Z", "E", "R", "T", "Y", "U", "I", "O", "P" },
-    { "Q", "S", "D", "F", "G", "H", "J", "K", "L", "M" },
-    { "W", "X", "C", "V", "B", "N", "⌫" },
-}
 
 -- ---------------------------------------------------------------------------
 -- ArrowwordsScreen
@@ -128,24 +119,12 @@ function ArrowwordsScreen:buildLayout()
         self.board_widget,
     }
 
-    -- Keyboard
-    local key_rows_cfg = {}
-    for _, row in ipairs(KEY_ROWS) do
-        local btns = {}
-        for _, key in ipairs(row) do
-            local k = key
-            btns[#btns + 1] = {
-                text     = k,
-                callback = function() self:onKeyPress(k) end,
-            }
-        end
-        key_rows_cfg[#key_rows_cfg + 1] = btns
-    end
-
-    self.keyboard_widget = ButtonTable:new{
-        shrink_unneeded_width = true,
-        width   = btn_width,
-        buttons = key_rows_cfg,
+    -- Keyboard (AZERTY — standard French layout)
+    self.keyboard_widget = KeyboardWidget.build{
+        width     = btn_width,
+        layout    = "azerty",
+        backspace = true,
+        onKey     = function(k) self:onVirtualKey(k) end,
     }
 
     -- Action buttons
@@ -209,7 +188,7 @@ function ArrowwordsScreen:onCellTap(r, c)
     self:updateStatus()
 end
 
-function ArrowwordsScreen:onKeyPress(key)
+function ArrowwordsScreen:onVirtualKey(key)
     if key == "⌫" then
         self.board:deleteLetter()
     else
