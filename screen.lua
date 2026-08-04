@@ -137,6 +137,8 @@ function ArrowwordsScreen:buildLayout()
         }},
     }
 
+    self.status_text:setMaxWidth(btn_width)
+
     if is_landscape then
         local right = VerticalGroup:new{
             align = "center",
