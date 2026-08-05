@@ -10,12 +10,14 @@ local function lrequire(name)
 end
 
 local PluginBase        = require("plugin_base")
-local _                 = require("gettext")
+local _                 = require("i18n")
+
+require("i18n").extend(lrequire("i18n_fr"))
 local ArrowwordsScreen  = lrequire("screen")
 
 local Arrowwords = PluginBase:extend{
     name      = "arrowwords",
-    menu_text = _("Mots fléchés"),
+    menu_text = _("Arrow Words"),
     menu_hint = "tools",
 }
 

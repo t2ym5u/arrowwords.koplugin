@@ -75,7 +75,7 @@ function ArrowwordsScreen:buildLayout()
         or  math.floor(sw * 0.9)
 
     -- Title bar with Options menu
-    local title_bar = self:buildTitleBar(_("Mots fléchés"), function()
+    local title_bar = self:buildTitleBar(_("Arrow Words"), function()
         return {
             self:makeRulesButtonConfig(GAME_RULES_EN, GAME_RULES_FR),
         }
